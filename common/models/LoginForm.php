@@ -11,7 +11,6 @@ class LoginForm extends Model
 {
     public $username;
     public $password;
-    public $rememberMe = true;
 
     private $_user;
 
@@ -24,9 +23,8 @@ class LoginForm extends Model
         return [
             // username and password are both required
             [['username', 'password'], 'required'],
-            // rememberMe must be a boolean value
-            ['rememberMe', 'boolean'],
-            // password is validated by validatePassword()
+            ['username', 'validateUsername'],
+                // password is validated by validatePassword()
             ['password', 'validatePassword'],
         ];
     }
@@ -42,9 +40,32 @@ class LoginForm extends Model
     {
         if (!$this->hasErrors()) {
             $user = $this->getUser();
-            if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+
+            if(!$user) {
+                $this->addError($attribute, 'Ytn gjkmpjdfntkz.');
             }
+
+            if (!$user || !$user->validatePassword($this->password)) {
+                //$this->signup();
+                $this->addError($attribute, 'Неверные данные для входа.');
+            }
+        }
+    }
+
+    public function validateUsername($attribute, $params)
+    {
+
+        $patternPhone = "/^\+7\s\([0-9]{3}\)\s[0-9]{3}\-[0-9]{2}\-[0-9]{2}$/";
+        $patternEmail = "/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/";
+
+        if (preg_match($patternPhone, $this->$attribute) == 0) {
+
+            if (preg_match($patternEmail, $this->$attribute) == 0) {
+
+                $this->addError($attribute, 'Неверный телефон или email');
+
+            }
+
         }
     }
 
@@ -56,10 +77,26 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            return Yii::$app->user->login($this->getUser(), 3600 * 24 * 366);
         }
         
         return false;
+    }
+
+    /**
+     * Signs user up.
+     *
+     * @return bool whether the creating new account was successful and email was sent
+     */
+    public function signup()
+    {
+        $user = new User();
+        $user->phone = $this->username;
+        $user->setPassword($this->password);
+        $user->generateAuthKey();
+        $user->generateEmailVerificationToken();
+        return $user->save();
+        //return  $user = $this->getUser();
     }
 
     /**
@@ -74,5 +111,13 @@ class LoginForm extends Model
         }
 
         return $this->_user;
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'Email/Телефон',
+            'password' => 'Пароль',
+        ];
     }
 }
