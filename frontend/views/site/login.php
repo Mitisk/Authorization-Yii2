@@ -36,21 +36,81 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <?php ActiveForm::end(); ?>
 
-            <input type="text" name="txt" value="Hello" onchange="myFunction(this.value)">
+
+
+
 
             <script>
-                function myFunction(val) {
-                    if (val = 3) {
-                        alert("The input value has changed. The new value is: " + val);
+
+                var inp = document.getElementById("loginform-username");
+
+                var old = 0;
+
+                var phoneFlag = false;
+
+                inp.onkeydown = function() {
+                    var curLen = inp.value.length;
+
+
+                    if (curLen < old){
+                        old--;
+                        return;
+                    }
+
+                    if (curLen == 1) {
+                        if (inp.value == '8' || inp.value == '7') {
+                            inp.value = "";
+                            inp.value = inp.value + "+7 (";
+                            phoneFlag = true;
+                        }
+                    }
+
+                    if (inp.value == '+7') {
+                            inp.value = "";
+                            inp.value = inp.value + "+7 (";
+                            phoneFlag = true;
+                        }
+
+                    if (phoneFlag) {
+                        if (curLen == 7)
+                            inp.value = inp.value + ") ";
+
+                        if (curLen == 12)
+                            inp.value = inp.value + "-";
+
+                        if (curLen == 15)
+                            inp.value = inp.value + "-";
+
+                        if (curLen > 17)
+                            inp.value = inp.value.substring(0, inp.value.length - 1);
+
+                        old++;
                     }
 
                 }
-            </script>
 
+                /*$(document).ready(function(){
+                    //var pattern = /^\+7\s\([0-9]{3}\)\s[0-9]{3}\-[0-9]{2}\-[0-9]{2}$/;
+                    var pattern = /^\+7$/;
+                    var pattern1 = /^\7$/;
+                    var pattern2 = /^\8$/;
+                    var loginInput = $('#loginInput');
 
-            <input  value="" id="tel">
-            <script>
-                window.addEventListener("DOMContentLoaded", function() {
+                    loginInput.blur(function(){
+                        if(loginInput.val() != ''){
+                            if(loginInput.val().search(pattern) == 0 || loginInput.val().search(pattern1) == 0 || loginInput.val().search(pattern2) == 0){
+                                $('#loginInput').mask('+7 (999) 999-99-99');
+                                $('#vali1d').text('Подходит');
+                            }else{
+                                $('#vali1d').text('Не подходит');
+                            }
+                        } else {
+                            $('#vali1d').text('Поле e-mail не должно быть пустым!');
+                        }
+                    });
+                });*/
+
+                /*window.addEventListener("DOMContentLoaded", function() {
                     function setCursorPosition(pos, elem) {
                         elem.focus();
                         if (elem.setSelectionRange) elem.setSelectionRange(pos, pos);
@@ -76,14 +136,36 @@ $this->params['breadcrumbs'][] = $this->title;
                             if (this.value.length == 2) this.value = ""
                         } else setCursorPosition(this.value.length, this)
                     };
+
+                    var pattern = /^\+7$/;
+                    var pattern1 = /^\7$/;
+                    var pattern2 = /^\8$/;
+
                     var input = document.querySelector("#tel");
+
+                 */
+
+                    /*if(input != ''){
+                        if(input.val().search(pattern) == 0 || input.val().search(pattern1) == 0 || input.val().search(pattern2) == 0){
+
+                            $('#vali1d').text('Подходит');
+                        }else{
+                            $('#vali1d').text('Не подходит');
+                        }
+                    } else {
+                        $('#vali1d').text('Поле e-mail не должно быть пустым!');
+                    }*/
+
+                    /*
+
                     input.addEventListener("input", mask, false);
                     input.addEventListener("focus", mask, false);
                     input.addEventListener("blur", mask, false);
-                });
+                });*/
             </script>
 
 
         </div>
     </div>
 </div>
+
