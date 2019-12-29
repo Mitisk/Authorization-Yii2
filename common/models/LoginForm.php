@@ -54,7 +54,6 @@ class LoginForm extends Model
 
     public function validateUsername($attribute, $params)
     {
-
         $patternPhone = "/^\+7\s\([0-9]{3}\)\s[0-9]{3}\-[0-9]{2}\-[0-9]{2}$/";
         $patternEmail = "/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/";
 
@@ -107,7 +106,22 @@ class LoginForm extends Model
     protected function getUser()
     {
         if ($this->_user === null) {
-            $this->_user = User::findByUsername($this->username);
+
+            $patternPhone = "/^\+7\s\([0-9]{3}\)\s[0-9]{3}\-[0-9]{2}\-[0-9]{2}$/";
+            $patternEmail = "/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/";
+
+            if (preg_match($patternPhone, $this->username) == 1) {
+
+                $this->_user = User::findByPhone($this->username);
+
+            }
+
+            if (preg_match($patternEmail, $this->username) == 1) {
+
+                $this->_user = User::findByUsername($this->username);
+
+            }
+
         }
 
         return $this->_user;
