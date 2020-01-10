@@ -14,6 +14,7 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+use frontend\models\AuthForm;
 
 /**
  * Site controller
@@ -89,6 +90,7 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         } else {
@@ -98,7 +100,74 @@ class SiteController extends Controller
                 'model' => $model,
             ]);
         }
+
     }
+
+    public function actionAuth()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new AuthForm();
+        $model->scenario = $model::SCENARIO_USERNAME_CS;
+
+        if ($model->load(Yii::$app->request->post()) && $model->goToPassword()) {
+
+            return $this->redirect(['password', 'username' => $model->username]);
+
+        } else {
+            return $this->render('auth', [
+                'model' => $model,
+            ]);
+        }
+
+    }
+
+    public function actionPassword($username)
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new AuthForm();
+        $model->username = trim($username);
+        $model->scenario = $model::SCENARIO_PASSWORD_CS;
+
+
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            return $this->goHome();
+        } else {
+            return $this->render('auth_password', [
+                'model' => $model,
+            ]);
+        }
+    }
+
+
+
+    /*public function actionAuth()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new AuthForm();
+        $model->scenario = $model::SCENARIO_USERNAME_CS;
+
+        if ($model->load(Yii::$app->request->post()) && $model->goToPassword()) {
+            $model->scenario = $model::SCENARIO_PASSWORD_CS;
+            return $this->render('auth_password', [
+                'model' => $model,
+            ]);
+        } else {
+            $model->password = '';
+
+            return $this->render('auth', [
+                'model' => $model,
+            ]);
+        }
+    }*/
 
     /**
      * Logs out the current user.
