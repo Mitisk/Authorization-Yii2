@@ -4,6 +4,7 @@ namespace frontend\models;
 use Yii;
 use yii\base\Model;
 use common\models\User;
+use app\models\UserBehavior;
 
 /**
  * Форма авторизации/регистрации пользователей
@@ -19,6 +20,8 @@ class AuthForm extends Model
     const SCENARIO_USERNAME_CS = 'username_sc';
     //Второй сценарий - пользователь вводит пароль
     const SCENARIO_PASSWORD_CS = 'password_sc';
+    //Вызываем капчу, если плохое поведение у пользователя
+    const SCENARIO_CAPTCHA_CS = 'captcha_sc';
 
 
     public function rules()
@@ -30,6 +33,8 @@ class AuthForm extends Model
 
             ['password', 'required', 'on' => self::SCENARIO_PASSWORD_CS],
             ['password', 'validatePassword', 'on' => self::SCENARIO_PASSWORD_CS],
+
+            [['reCaptcha'], \himiklab\yii2\recaptcha\ReCaptchaValidator2::className(), 'uncheckedMessage' => 'Пожалуйста, подтвердите капчу.', 'on' => self::SCENARIO_CAPTCHA_CS],
         ];
     }
 
@@ -39,6 +44,13 @@ class AuthForm extends Model
 
     public function validateUsername($attribute, $params)
     {
+        /*if (UserBehavior::findBadBehavior($this->username)) {
+            /*
+             * Если Пользователь сменил имя пользователя, то капча.
+             */
+            /*$this->scenario = $this::SCENARIO_CAPTCHA_CS;
+        }*/
+
         $patternPhone = Yii::$app->params['patternPhone'];
         $patternEmail = Yii::$app->params['patternEmail'];
 
@@ -49,6 +61,10 @@ class AuthForm extends Model
                 $this->addError($attribute, 'Неверный телефон или email');
 
             }
+
+        } else {
+            //$add = new UserBehavior();
+            //$add->addBadBehavior($this->username, Null, 3);
 
         }
     }
@@ -79,17 +95,36 @@ class AuthForm extends Model
         if (!$this->hasErrors()) {
             $user = $this->getUser();
 
+            if (UserBehavior::findBadBehavior($this->username)) {
+                /*
+                 * Если Пользователь 3 раза подряд вводит неверный пароль,
+                 * то сценарий заменяется на captcha.
+                 */
+                $this->scenario = $this::SCENARIO_CAPTCHA_CS;
+            }
+
             if(!$user) {
-                $this->addError($attribute, 'Ytn gjkmpjdfntkz.');
+                /*
+                 * Данное событие невозможно!
+                 * В случае подмены логина пользователя, выставляем капчу.
+                 */
+                $this->scenario = $this::SCENARIO_CAPTCHA_CS;
+                $this->addError($attribute, 'Что-то пошло не так.');
             }
 
             if (!$user || !$user->validatePassword($this->password)) {
-                //$this->signup();
+                /*
+                 * Если пользователь вводит неверный пароль,
+                 * то записываем плохое поведение, выдаем ошибку.
+                 */
+                $add = new UserBehavior();
+                $add->addBadBehavior($this->username, $this->password);
+
                 $this->addError($attribute, 'Неверные данные для входа.');
             }
+
         }
     }
-
 
 
     /**
