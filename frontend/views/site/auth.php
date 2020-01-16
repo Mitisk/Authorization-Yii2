@@ -18,7 +18,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
 
+            <?= $model->scenario . ' / ' . $model->username . ' - ' . date("Y-m-d H:i:s"); ?>
+
                     <?= $form->field($model, 'username')->textInput(['maxlength' => true]) ?>
+
+                <? if ($model->scenario == 'captcha_sc') {
+                    echo $form->field($model, 'reCaptcha')->widget(\himiklab\yii2\recaptcha\ReCaptcha2::className())->label('Капча');
+                } ?>
 
                 <div class="form-group">
                     <?= Html::submitButton('ПРОДОЛЖИТЬ', ['class' => 'btn btn-primary btn-lg btn-block', 'name' => 'login-button']) ?>

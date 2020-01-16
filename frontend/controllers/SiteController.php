@@ -15,6 +15,8 @@ use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
 use frontend\models\AuthForm;
+use yii\helpers\Html;
+use app\models\UserBehavior;
 
 /**
  * Site controller
@@ -110,7 +112,14 @@ class SiteController extends Controller
         }
 
         $model = new AuthForm();
-        $model->scenario = $model::SCENARIO_USERNAME_CS;
+        if (UserBehavior::findBadBehavior(null, $at = 'IT')) {
+            /*
+             * Если Пользователь сменил имя пользователя, то капча.
+             */
+            $model->scenario = $model::SCENARIO_CAPTCHA_CS;
+        } else {
+            $model->scenario = $model::SCENARIO_USERNAME_CS;
+        }
 
         if ($model->load(Yii::$app->request->post()) && $model->goToPassword()) {
 
@@ -131,7 +140,8 @@ class SiteController extends Controller
         }
 
         $model = new AuthForm();
-        $model->username = trim($username);
+        $username = trim($username);
+        $model->username = Html::encode($username);
         $model->scenario = $model::SCENARIO_PASSWORD_CS;
 
 

@@ -13,6 +13,7 @@ class AuthForm extends Model
 {
     public $username;
     public $password;
+    public $reCaptcha;
 
     private $_user;
 
@@ -27,8 +28,8 @@ class AuthForm extends Model
     public function rules()
     {
         return [
-            ['username', 'required', 'on' => self::SCENARIO_USERNAME_CS],
-            ['username', 'validateUsername', 'on' => self::SCENARIO_USERNAME_CS],
+            ['username', 'required', 'on' => [self::SCENARIO_USERNAME_CS, self::SCENARIO_CAPTCHA_CS]],
+            ['username', 'validateUsername', 'on' => [self::SCENARIO_USERNAME_CS, self::SCENARIO_CAPTCHA_CS]],
             ['username', 'string', 'min' => 2, 'max' => 255, 'on' => self::SCENARIO_USERNAME_CS],
 
             ['password', 'required', 'on' => self::SCENARIO_PASSWORD_CS],
@@ -44,13 +45,6 @@ class AuthForm extends Model
 
     public function validateUsername($attribute, $params)
     {
-        /*if (UserBehavior::findBadBehavior($this->username)) {
-            /*
-             * Если Пользователь сменил имя пользователя, то капча.
-             */
-            /*$this->scenario = $this::SCENARIO_CAPTCHA_CS;
-        }*/
-
         $patternPhone = Yii::$app->params['patternPhone'];
         $patternEmail = Yii::$app->params['patternEmail'];
 
@@ -63,8 +57,8 @@ class AuthForm extends Model
             }
 
         } else {
-            //$add = new UserBehavior();
-            //$add->addBadBehavior($this->username, Null, 3);
+            $add = new UserBehavior();
+            $add->addBadBehavior($this->username, Null, 3);
 
         }
     }
@@ -156,7 +150,6 @@ class AuthForm extends Model
         $user = new User();
         $user->setPassword('123456');
         $user->generateAuthKey();
-        $user->generateEmailVerificationToken();
 
         if (preg_match($patternPhone, $username) == 1) {
             //По телефону

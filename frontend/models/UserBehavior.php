@@ -58,7 +58,7 @@ class UserBehavior extends \yii\db\ActiveRecord
      */
 
     public static function findBadBehavior($username, $at = 'UIT') {
-        $sec_to_add = 60;
+        $sec_to_add = 360;
         $match_time = strtotime(date("Y-m-d H:i:s")) - $sec_to_add;
 
         /*
@@ -67,6 +67,9 @@ class UserBehavior extends \yii\db\ActiveRecord
         if ($at === 'UIT') {
             $findBadBehavior = UserBehavior::find()->where(['username' => $username])->andWhere(['ip' => $_SERVER['REMOTE_ADDR']])->andWhere('time_at >= '.$match_time)->sum('weight');
         }
+        /*
+         * Поиск плохого поведения по it (IP, Time_at)
+         */
         if ($at === 'IT') {
             $findBadBehavior = UserBehavior::find()->where(['ip' => $_SERVER['REMOTE_ADDR']])->andWhere('time_at >= '.$match_time)->sum('weight');
         }
