@@ -6,6 +6,7 @@ use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use common\models\Auth;
 
 /**
  * User model
@@ -206,5 +207,15 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    public function getAuth() {
+        return $this->hasOne(Auth::className(), ['user_id' => 'id'])->one();
+    }
+
+    public static function findUserAuthClient($userId)
+    {
+        $authClient = Auth::find()->where(['user_id' => $userId])->one();
+        return $authClient->source_id;
     }
 }

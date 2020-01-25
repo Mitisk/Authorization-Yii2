@@ -9,13 +9,11 @@ $this->title = 'Создание нового пользователя';
 $this->params['breadcrumbs'][] = ['label' => 'Пользователи сайта', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="user-behavior-create">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <?= $this->render('_form', [
-        'model' => $model,
-        'methodToPass' => 'create',
-    ]) ?>
-
+<div class="card">
+    <div class="card-body">
+        <?= $this->render('_form', [
+            'model' => $model,
+            'methodToPass' => 'create',
+        ]) ?>
+    </div>
 </div>

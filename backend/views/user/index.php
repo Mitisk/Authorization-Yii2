@@ -6,64 +6,89 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\grid\ActionColumn;
 
 $this->title = 'Пользователи сайта';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="user-index">
+<div class="card">
+    <div class="card-header">
+        <?= Html::a('Создать нового пользователя', ['create'], ['class' => 'btn btn-success']) ?>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <?= GridView::widget([
+            'dataProvider' => $dataProvider,
+            'columns' => [
 
-    <h1><?= Html::encode($this->title) ?></h1>
+                'id',
+                [
+                    'attribute'=> 'username',
+                    'value' => function($data){
+                        return $data->findUserAuthClient($data->id);
+                    },
+                ],
+                'email',
+                'phone',
+                //'status',
+                [
+                    'attribute'=>'status',
+                    'format' => 'raw',
+                    'value' => function($data){
+                        if ($data->status == 10) {
+                            $check = "<span class='badge badge-success'>активен</span>";
+                        }
+                        elseif ($data->status == 9) {
+                            $check = "<span class='badge badge-warning'>Не активен</span>";
+                        }
+                        elseif ($data->status == 9) {
+                            $check = "<span class='badge badge-warning'>Не активен</span>";
+                        }
 
-    <p>
-        <?= Html::a('Create User', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+                        return $check;
+                    },
+                ],
+                //'created_at',
+                [
+                    'attribute' => 'created_at',
+                    'format' => ['date', 'dd/MM/yyyy']
+                ],
+                [
+                    'label' => 'auth_key',
+                    'format' => 'raw',
+                    'value' => function($data){
+                        ($data->auth_key) ? $check = "<i class='fas fa-check' data-toggle='tooltip' data-placement='right' title='Имеет auth_key'></i>" : $check = "<i class='fas fa-times'></i>";
+                        return $check;
+                    },
+                ],
 
-
-    <?= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'columns' => [
-
-            'id',
-            'username',
-            'email',
-            'phone',
-            //'status',
-            [
-                'attribute'=>'status',
-                'format' => 'raw',
-                'value' => function($data){
-                    if ($data->status == 10) {
-                        $check = "<span class='badge badge-success'>активен</span>";
-                    }
-                    elseif ($data->status == 9) {
-                        $check = "<span class='badge badge-warning'>Не активен</span>";
-                    }
-                    elseif ($data->status == 9) {
-                        $check = "<span class='badge badge-warning'>Не активен</span>";
-                    }
-
-                    return $check;
-},
+                ['class' => ActionColumn::className(),
+                    //'template' => '{details} {delete}',
+                    'buttons' => [
+                        'view' => function ($url, $model, $key) {
+                            return Html::a('<i class="fas fa-eye"></i>', $url, [
+                                'title' => 'Full Details',
+                                'data-pjax' => '0',
+                            ]);
+                        },
+                        'update' => function ($url, $model, $key) {
+                            return Html::a('<i class="fas fa-pencil"></i>', $url, [
+                                'title' => 'Edit',
+                                'data-pjax' => '0',
+                            ]);
+                        },
+                        'delete' => function ($url, $model, $key) {
+                            return Html::a('<i class="fas fa-trash-alt"></i>', $url, [
+                                'title' => Yii::t('yii', 'Delete'),
+                                'data-confirm' => 'Are you sure you want to delete?',
+                                'data-method' => 'post',
+                                'data-pjax' => '0',
+                            ]);
+                        },
+                    ],]
             ],
-            //'created_at',
-            [
-                'attribute' => 'created_at',
-                'format' => ['date', 'dd/MM/yyyy']
-            ],
-            [
-                'label' => 'auth_key',
-                'format' => 'raw',
-                'value' => function($data){
-                    ($data->auth_key) ? $check = "<i class='glyphicon glyphicon-ok' data-toggle='tooltip' data-placement='right' title='Имеет auth_key'></i>" : $check = "<i class='glyphicon glyphicon-remove'></i>";
-                    return $check;
-
-                },
-            ],
-
-
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
-    ]); ?>
-
-
+        ]); ?>
+    </div>
 </div>
+
+
+

@@ -1,6 +1,8 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Auth;
+use common\models\User;
 use frontend\models\ResendVerificationEmailForm;
 use frontend\models\VerifyEmailForm;
 use Yii;
@@ -12,7 +14,6 @@ use yii\filters\AccessControl;
 use common\models\LoginForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
-use frontend\models\SignupForm;
 use frontend\models\ContactForm;
 use frontend\models\AuthForm;
 use yii\helpers\Html;
@@ -67,8 +68,13 @@ class SiteController extends Controller
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
+            'vk' => [
+                'class' => 'yii\authclient\AuthAction',
+                'successCallback' => [$this, 'onAuthSuccess'],
+            ],
         ];
     }
+
 
     /**
      * Displays homepage.
@@ -156,28 +162,86 @@ class SiteController extends Controller
 
 
 
-    /*public function actionAuth()
+    public function onAuthSuccess($client)
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+        $attributes = $client->getUserAttributes();
+
+        /* @var $auth Auth */
+        $auth = Auth::find()->where([
+            'source' => $client->getId(),
+            'source_id' => $attributes['id'],
+        ])->one();
+
+        if (Yii::$app->user->isGuest) {
+            if ($auth) { // авторизация
+                $user = $auth->user;
+                Yii::$app->user->login($user, 3600 * 24 * 366);
+            } else { // регистрация
+                if (isset($attributes['email']) && User::find()->where(['email' => $attributes['email']])->exists()) {
+                    Yii::$app->getSession()->setFlash('error', [
+                        Yii::t('app', "Пользователь с такой электронной почтой как в {client} уже существует, но с ним не связан. Для начала войдите на сайт использую электронную почту, для того, что бы связать её.", ['client' => $client->getTitle()]),
+                    ]);
+                } else {
+                    $password = Yii::$app->security->generateRandomString(6);
+                    $user = new User([
+                        'username' => $attributes['nickname'],
+                        'email' => $attributes['email'],
+                        'password' => $password,
+                        'name' => $attributes['first_name'],
+                        'last_name' => $attributes['last_name'],
+                        'status' => 10,
+                        /*
+                         *
+                         * 'uid',
+                            'first_name',
+                            'last_name',
+                            'nickname',
+                            'screen_name',
+                            'sex',
+                            'bdate',
+                            'city',
+                            'country',
+                            'timezone',
+                            'photo'
+                         */
+                    ]);
+                    $user->generateAuthKey();
+                    $user->generatePasswordResetToken();
+                    $transaction = $user->getDb()->beginTransaction();
+                    if ($user->save()) {
+                        $auth = new Auth([
+                            'user_id' => $user->id,
+                            'source' => $client->getId(),
+                            'source_id' => (string)$attributes['id'],
+                        ]);
+                        if ($auth->save()) {
+                            $transaction->commit();
+                            Yii::$app->user->login($user, 3600 * 24 * 366);
+                        } else {
+                            print_r($auth->getErrors());
+                        }
+                    } else {
+                        print_r($user->getErrors());
+                    }
+                }
+            }
+        } else { // Пользователь уже зарегистрирован
+            if (!$auth) { // добавляем внешний сервис аутентификации
+                $auth = new Auth([
+                    'user_id' => Yii::$app->user->id,
+                    'source' => $client->getId(),
+                    'source_id' => (string)$attributes['id'],
+                ]);
+                if ($auth->save()) {
+                    return true;
+                } else {
+                    print_r($auth->getErrors());
+                }
+            }
         }
+    }
 
-        $model = new AuthForm();
-        $model->scenario = $model::SCENARIO_USERNAME_CS;
 
-        if ($model->load(Yii::$app->request->post()) && $model->goToPassword()) {
-            $model->scenario = $model::SCENARIO_PASSWORD_CS;
-            return $this->render('auth_password', [
-                'model' => $model,
-            ]);
-        } else {
-            $model->password = '';
-
-            return $this->render('auth', [
-                'model' => $model,
-            ]);
-        }
-    }*/
 
     /**
      * Logs out the current user.
@@ -224,23 +288,6 @@ class SiteController extends Controller
         return $this->render('about');
     }
 
-    /**
-     * Signs user up.
-     *
-     * @return mixed
-     */
-    public function actionSignup()
-    {
-        $model = new SignupForm();
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            Yii::$app->session->setFlash('success', 'Thank you for registration. Please check your inbox for verification email.');
-            return $this->goHome();
-        }
-
-        return $this->render('signup', [
-            'model' => $model,
-        ]);
-    }
 
     /**
      * Requests password reset.

@@ -6,6 +6,7 @@
 
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
+use yii\widgets\Pjax;
 
 $this->title = 'Войти или зарегистрироваться на сайте';
 $this->params['breadcrumbs'][] = $this->title;
@@ -15,6 +16,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="row">
         <div class="col-lg-5">
+
+
 
             <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
 
@@ -32,8 +35,20 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <?php ActiveForm::end(); ?>
 
+            <?= Html::a('ВКонтакте', ['vk', 'authclient' => 'vkontakte'])?>
+
+            <?= yii\authclient\widgets\AuthChoice::widget([
+                'baseAuthUrl' => ['site/vk'],
+                'popupMode' => true,
+            ]) ?>
+
+
+
+
+
 
             <script>
+
                 var inp = document.getElementById("authform-username");
 
                 var old = 0;

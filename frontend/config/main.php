@@ -45,6 +45,16 @@ return [
                 '<action:\w+>'=>'site/<action>',
             ],
         ],
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            'clients' => [
+                'vkontakte' => [
+                    'class' => 'yii\authclient\clients\VKontakte',
+                    'clientId' => '7294980',
+                    'clientSecret' => 'IEnPDQ3rmYd7QvbiLspu',
+                ],
+            ],
+        ]
     ],
     'params' => $params,
 ];

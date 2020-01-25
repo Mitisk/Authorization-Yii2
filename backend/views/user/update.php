@@ -10,13 +10,11 @@ $this->params['breadcrumbs'][] = ['label' => 'Пользователи сайт�
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Редактирование';
 ?>
-<div class="user-behavior-update">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <?= $this->render('_form', [
-        'model' => $model,
-        'methodToPass' => 'update',
-    ]) ?>
-
+<div class="card">
+    <div class="card-body">
+        <?= $this->render('_form', [
+            'model' => $model,
+            'methodToPass' => 'update',
+        ]) ?>
+    </div>
 </div>
