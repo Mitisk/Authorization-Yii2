@@ -210,12 +210,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     public function getAuth() {
-        return $this->hasOne(Auth::className(), ['user_id' => 'id'])->one();
+        return $this->hasOne(Auth::className(), ['user_id' => 'id']);
     }
 
-    public static function findUserAuthClient($userId)
-    {
-        $authClient = Auth::find()->where(['user_id' => $userId])->one();
-        return $authClient->source_id;
-    }
 }

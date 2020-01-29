@@ -59,5 +59,16 @@ class Auth extends \yii\db\ActiveRecord
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
+    public static function findAuthUser($client, $id) {
+       return Auth::find()->where([
+            'source' => $client->getId(),
+            'source_id' => $id,
+        ])->one();
+    }
+
+
+
+
+
 
 }

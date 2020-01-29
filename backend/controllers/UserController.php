@@ -41,7 +41,7 @@ class UserController extends Controller
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => User::find(),
+            'query' => User::find()->with('auth'),
             'pagination' => [
                 'pageSize' => 50,
             ],

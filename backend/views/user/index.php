@@ -23,8 +23,18 @@ $this->params['breadcrumbs'][] = $this->title;
                 'id',
                 [
                     'attribute'=> 'username',
+                    'format' => 'raw',
                     'value' => function($data){
-                        return $data->findUserAuthClient($data->id);
+                        if ($username = $data->username) {
+                            $username = $data->username;
+                        } else {$username = '(не задано)';}
+
+                        if ($data->auth->source_id) {
+                            $url = 'https://vk.com/id'.$data->auth->source_id;
+                            $vk = ' ('.Html::a('ВКонтакте', \yii\helpers\Url::to($url, true), $options = ['target' => 'blank']).')';
+                        } else {$vk = '';}
+
+                        return $username . $vk;
                     },
                 ],
                 'email',

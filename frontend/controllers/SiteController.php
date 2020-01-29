@@ -167,10 +167,7 @@ class SiteController extends Controller
         $attributes = $client->getUserAttributes();
 
         /* @var $auth Auth */
-        $auth = Auth::find()->where([
-            'source' => $client->getId(),
-            'source_id' => $attributes['id'],
-        ])->one();
+        $auth = Auth::findAuthUser($client, $attributes['id']);
 
         if (Yii::$app->user->isGuest) {
             if ($auth) { // авторизация
@@ -190,20 +187,6 @@ class SiteController extends Controller
                         'name' => $attributes['first_name'],
                         'last_name' => $attributes['last_name'],
                         'status' => 10,
-                        /*
-                         *
-                         * 'uid',
-                            'first_name',
-                            'last_name',
-                            'nickname',
-                            'screen_name',
-                            'sex',
-                            'bdate',
-                            'city',
-                            'country',
-                            'timezone',
-                            'photo'
-                         */
                     ]);
                     $user->generateAuthKey();
                     $user->generatePasswordResetToken();
