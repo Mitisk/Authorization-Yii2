@@ -12,3 +12,4 @@ RewriteRule ^admin(/.+)?$ /backend/web/$1 [L,PT]
 
 RewriteCond %{REQUEST_URI} ^.*$
 RewriteRule ^(.*)$ /frontend/web/$1
+

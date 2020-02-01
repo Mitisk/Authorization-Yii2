@@ -237,6 +237,16 @@ AppAsset::register($this);
                         </ul>
                     </li>
 
+                    <li class="nav-item has-treeview">
+                        <a href="<?= Url::to(['menu/index']); ?>" class="nav-link">
+                            <i class="fas fa-ellipsis-h"></i>
+                            <p>
+                                Категории
+                            </p>
+
+                        </a>
+                    </li>
+
 
                 </ul>
             </nav>

@@ -42,6 +42,7 @@ return [
             'showScriptName' => false,
             'rules' => [
                 '/web' => 'site/index',
+                '<action:admin>' => 'backend/web',
                 '<action:\w+>'=>'site/<action>',
             ],
         ],

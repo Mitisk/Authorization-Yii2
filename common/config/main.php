@@ -17,5 +17,6 @@ return [
             'siteKeyV3' => 'your siteKey v3',
             'secretV3' => 'your secret key v3',
         ],
+
     ],
 ];
